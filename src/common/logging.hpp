@@ -1,11 +1,7 @@
 #pragma once
 
-#include <boost/log/trivial.hpp>
 #include <string>
-#include <any>
 #include <filesystem>
-#include <iostream>
-#include <typeinfo>
 
 #ifdef NDEBUG
 #define LOG_DEBUG common::logging::LogEntry(common::logging::LogSeverity::DEBUG)
@@ -13,6 +9,7 @@
 #define LOG_WARNING common::logging::LogEntry(common::logging::LogSeverity::WARNING)
 #define LOG_ERROR common::logging::LogEntry(common::logging::LogSeverity::ERROR)
 #else
+// Adding the line and function to debug logging output
 #define LOG_DEBUG common::logging::LogEntry(common::logging::LogSeverity::DEBUG, __LINE__, __func__)
 #define LOG_INFO common::logging::LogEntry(common::logging::LogSeverity::INFO, __LINE__, __func__)
 #define LOG_WARNING common::logging::LogEntry(common::logging::LogSeverity::WARNING, __LINE__, __func__)
@@ -23,7 +20,7 @@ namespace common::logging
 {
 enum class LogSeverity
 {
-    NOT_SET = -1,
+    UNKNOWN = -1,
     DEBUG,
     INFO,
     WARNING,
@@ -35,10 +32,10 @@ typedef std::ostream &(*ostream_function)(std::ostream &);
 class LogEntry
 {
 public:
-#ifdef NDEBUG
-    LogEntry(LogSeverity const &severity);
-#else
-    LogEntry(LogSeverity const &severity, long const &line, char const *const &func);
+    LogEntry(LogSeverity const &log_severity);
+#ifndef NDEBUG
+    // Additional constructor in debug mode that attaches function and line number
+    LogEntry(LogSeverity const &log_severity, long const &line, std::string const &func);
 #endif
     ~LogEntry();
     // Used for logging different types
@@ -47,19 +44,19 @@ public:
     LogEntry &operator<<(int const &num);
     LogEntry &operator<<(double const &num);
     LogEntry &operator<<(float const &num);
-    LogEntry &operator<<(LogSeverity const &severity);
+    LogEntry &operator<<(LogSeverity const &log_severity);
     // Used for things like std::endl for logging
     LogEntry &operator<<(ostream_function const &func);
 
 private:
     void log_entry_();
 
-    LogSeverity const severity_;
+    LogSeverity const log_severity_;
     std::string entry_;
 };
 
-void init_logger();
-bool logger_initialized() noexcept;
-void set_logger(std::string const &formatted_log_str);
-void set_logger(std::filesystem::path const &file_path, LogSeverity const &max_severity);
+void init_logging();
+bool logging_initialized() noexcept;
+void add_logger(std::string const &formatted_log_str);
+void add_logger(std::filesystem::path const &file_path, LogSeverity const &max_severity);
 } // namespace common::logging

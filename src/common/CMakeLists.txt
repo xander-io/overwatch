@@ -5,5 +5,5 @@ target_sources(${OUTPUT_NAME}
         logging.cpp
 )
 
-target_link_libraries(${OUTPUT_NAME} PRIVATE Boost::log Boost::log_setup)
 target_include_directories(${OUTPUT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(${OUTPUT_NAME} PRIVATE Boost::log Boost::log_setup)

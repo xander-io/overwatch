@@ -1,4 +1,5 @@
 #include <boost/log/core.hpp>
+#include <boost/log/trivial.hpp>
 #include <boost/log/utility/setup/console.hpp>
 #include <boost/log/utility/setup/file.hpp>
 #include <boost/log/utility/setup/common_attributes.hpp>
@@ -6,16 +7,68 @@
 
 #include "logging.hpp"
 
+#ifdef NDEBUG
+#define LOGGING_FORMAT "[%TimeStamp%] %LogSeverity% - %Message%"
+#else
+#define LOGGING_FORMAT "[%TimeStamp%:%Function%:%Line%] %LogSeverity% - %Message%"
+#endif
+
 namespace common::logging
 {
 namespace
 {
 bool initialized = false;
+
+std::string log_severity_to_string_(LogSeverity const &log_severity)
+{
+    std::string log_severity_str;
+    switch (log_severity)
+    {
+    case LogSeverity::DEBUG:
+        log_severity_str = "DEBUG";
+        break;
+    case LogSeverity::INFO:
+        log_severity_str = "INFO";
+        break;
+    case LogSeverity::WARNING:
+        log_severity_str = "WARNING";
+        break;
+    case LogSeverity::ERROR:
+        log_severity_str = "ERROR";
+        break;
+    default:
+        log_severity_str = "UNKNOWN";
+    }
+    return log_severity_str;
+}
+
+LogSeverity string_to_log_severity_(std::string const &log_severity_str)
+{
+    LogSeverity log_severity = LogSeverity::UNKNOWN;
+    if (log_severity_str == "debug")
+    {
+        log_severity = LogSeverity::DEBUG;
+    }
+    else if (log_severity_str == "info")
+    {
+        log_severity = LogSeverity::INFO;
+    }
+    else if (log_severity_str == "warning")
+    {
+        log_severity = LogSeverity::WARNING;
+    }
+    else if (log_severity_str == "error")
+    {
+        log_severity = LogSeverity::ERROR;
+    }
+    return log_severity;
+}
+
 void parse_string_(std::string const &logging_str, std::filesystem::path *file_path,
-                   std::string *file_name, LogSeverity *logging_severity)
+                   std::string *file_name, LogSeverity *log_severity)
 {
     // This should never happen unless the developer makes a mistake
-    if (file_path == nullptr || file_name == nullptr || logging_severity == nullptr)
+    if (file_path == nullptr || file_name == nullptr || log_severity == nullptr)
     {
         throw std::runtime_error{"At least one logging parameter must not be null."};
     }
@@ -33,60 +86,51 @@ void parse_string_(std::string const &logging_str, std::filesystem::path *file_p
         *file_path = std::filesystem::path{logging_str.substr(0, file_name_start + 1)};
         *file_name = logging_str.substr(file_name_start + 1, (delimiter_index - file_name_start - 1));
     }
-    std::string severity_str = logging_str.substr(delimiter_index + 1, logging_str.size());
-    std::transform(severity_str.begin(), severity_str.end(),
-                   severity_str.begin(), [](unsigned char c) { return std::tolower(c); });
+    std::string log_severity_str = logging_str.substr(delimiter_index + 1, logging_str.size());
+    std::transform(log_severity_str.begin(), log_severity_str.end(),
+                   log_severity_str.begin(), [](unsigned char c) { return std::tolower(c); });
 
     LOG_DEBUG << "[LOGGING_STR] = " << logging_str
               << "; [FILE_PATH] = " << *file_path
               << "; [FILE_NAME] = " << *file_name
-              << "; [SEVERITY_STR] = " << severity_str;
+              << "; [SEVERITY_STR] = " << log_severity_str;
 
-    if (severity_str == "debug")
-    {
-        *logging_severity = LogSeverity::DEBUG;
-    }
-    else if (severity_str == "info")
-    {
-        *logging_severity = LogSeverity::INFO;
-    }
-    else if (severity_str == "warning")
-    {
-        *logging_severity = LogSeverity::WARNING;
-    }
-    else if (severity_str == "error")
-    {
-        *logging_severity = LogSeverity::ERROR;
-    }
-    else
-    {
-        LOG_WARNING << "Unable to parse severity '" << severity_str << "'... Defaulting to using " << LogSeverity::INFO << ".";
-        *logging_severity = LogSeverity::INFO;
-    }
+    *log_severity = string_to_log_severity_(log_severity_str);
 }
 
 // Set value for dynamically changing thread attributes
 template <typename T>
-void set_logging_attribute_value_(const char *name, T const value)
+void set_logging_thread_attribute_(std::string const &name, T const &value)
 {
-    boost::log::attributes::mutable_constant<T> attr =
-        boost::log::attribute_cast<boost::log::attributes::mutable_constant<T>>(
-            boost::log::core::get()->get_thread_attributes()[name]);
-    attr.set(value);
+    boost::log::attribute_set attr_set =
+        boost::log::core::get()->get_thread_attributes();
+
+    // Check to see if the value exists in the set
+    if (!attr_set.count(name))
+    {
+        boost::log::core::get()->add_thread_attribute(name, boost::log::attributes::mutable_constant<T>(value));
+    }
+    else
+    {
+        boost::log::attributes::mutable_constant<T> attr =
+            boost::log::attribute_cast<boost::log::attributes::mutable_constant<T>>(attr_set[name]);
+        attr.set(value);
+    }
 }
 } // namespace
 
-#ifdef NDEBUG
-LogEntry::LogEntry(LogSeverity const &severity)
-    : severity_{severity}, entry_{""}
+LogEntry::LogEntry(LogSeverity const &log_severity)
+    : log_severity_{log_severity}, entry_{""}
 {
+    set_logging_thread_attribute_("LogSeverity", log_severity_to_string_(log_severity));
 }
-#else
-LogEntry::LogEntry(LogSeverity const &severity, long const &line, char const *const &func)
-    : severity_{severity}, entry_{""}
+
+#ifndef NDEBUG
+LogEntry::LogEntry(LogSeverity const &log_severity, long const &line, std::string const &func)
+    : LogEntry(log_severity)
 {
-    set_logging_attribute_value_("Line", line);
-    set_logging_attribute_value_("Function", func);
+    set_logging_thread_attribute_("Line", line);
+    set_logging_thread_attribute_("Function", func + "()");
 }
 #endif
 
@@ -98,12 +142,12 @@ LogEntry::~LogEntry()
 void LogEntry::log_entry_()
 {
     // Check to see that the logger is initialized
-    if (!logger_initialized())
+    if (!logging_initialized())
     {
         throw std::runtime_error{"Logger has not been initialized!"};
     }
 
-    switch (severity_)
+    switch (log_severity_)
     {
     case LogSeverity::DEBUG:
         BOOST_LOG_TRIVIAL(debug) << entry_;
@@ -152,25 +196,9 @@ LogEntry &LogEntry::operator<<(float const &num)
     return *this;
 }
 
-LogEntry &LogEntry::operator<<(LogSeverity const &severity)
+LogEntry &LogEntry::operator<<(LogSeverity const &log_severity)
 {
-    switch (severity)
-    {
-    case LogSeverity::DEBUG:
-        entry_.append("DEBUG");
-        break;
-    case LogSeverity::INFO:
-        entry_.append("INFO");
-        break;
-    case LogSeverity::WARNING:
-        entry_.append("WARNING");
-        break;
-    case LogSeverity::ERROR:
-        entry_.append("ERROR");
-        break;
-    default:
-        entry_.append("NOT_SET");
-    }
+    log_severity_to_string_(log_severity);
     return *this;
 }
 
@@ -180,45 +208,39 @@ LogEntry &LogEntry::operator<<(ostream_function const &func)
     return *this;
 }
 
-void init_logger()
+void init_logging()
 {
     if (!initialized)
     {
-        // Remove all current logging sources
-        boost::log::core::get()->remove_all_sinks();
+        // Remove the current logging source
         boost::log::add_common_attributes();
+        boost::log::add_console_log(std::cout, boost::log::keywords::format = LOGGING_FORMAT);
 #ifdef NDEBUG
-        boost::log::add_console_log(std::cout, boost::log::keywords::format = "[%TimeStamp%] %Message%");
         boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::info);
-// Sets the logger to debug mode for the console if running a debug build
 #else
-        // If debug build, log the line and function
-        boost::log::core::get()->add_global_attribute("Line", boost::log::attributes::mutable_constant<long>(__LINE__));
-        boost::log::core::get()->add_global_attribute("Function", boost::log::attributes::mutable_constant<std::string>(""));
-
-        boost::log::add_console_log(std::cout, boost::log::keywords::format = "[%TimeStamp%:%Line%:%Function%] %Message%");
         boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::debug);
 #endif
         initialized = true;
     }
     else
     {
-        throw std::runtime_error{"Logging has already been initialized."};
+        LOG_WARNING << "Logging has already been initialized once... Continuing";
     }
+    LOG_DEBUG << "Logging initialized successfully";
 }
 
-bool logger_initialized() noexcept
+bool logging_initialized() noexcept
 {
     return initialized;
 }
 
-void set_logger(std::filesystem::path const &file_path, std::string const &file_name, LogSeverity const &max_severity)
+void add_logger(std::filesystem::path const &file_path, std::string const &file_name, LogSeverity const &max_severity)
 {
     if (!initialized)
     {
         throw std::runtime_error{"Logging has not been initialized."};
     }
-    else if (max_severity == LogSeverity::NOT_SET)
+    else if (max_severity == LogSeverity::UNKNOWN)
     {
         throw std::runtime_error{"Logging severity is not set."};
     }
@@ -251,12 +273,12 @@ void set_logger(std::filesystem::path const &file_path, std::string const &file_
     boost::log::add_common_attributes();
     if (file_path.empty())
     {
-        boost::log::add_console_log(std::cout, boost::log::keywords::format = "[%TimeStamp%] %Message%");
+        boost::log::add_console_log(std::cout, boost::log::keywords::format = LOGGING_FORMAT);
     }
     else
     {
         std::filesystem::create_directories(file_path);
-        boost::log::add_file_log(file_path.u8string() + file_name, boost::log::keywords::format = "[%TimeStamp%] %Message%");
+        boost::log::add_file_log(file_path.u8string() + file_name, boost::log::keywords::format = LOGGING_FORMAT);
     }
     boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost_severity);
 #else
@@ -264,17 +286,12 @@ void set_logger(std::filesystem::path const &file_path, std::string const &file_
 #endif
 }
 
-void set_logger(std::string const &formatted_log_str)
+void add_logger(std::string const &formatted_log_str)
 {
     std::filesystem::path path;
     std::string file_name;
-    LogSeverity severity = LogSeverity::NOT_SET;
+    LogSeverity severity = LogSeverity::UNKNOWN;
     parse_string_(formatted_log_str, &path, &file_name, &severity);
-    set_logger(path, file_name, severity);
+    add_logger(path, file_name, severity);
 }
-
-namespace
-{
-
-} // namespace
 } // namespace common::logging
