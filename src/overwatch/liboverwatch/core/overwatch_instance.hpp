@@ -11,11 +11,7 @@ class OverwatchInstance
 {
 public:
     OverwatchInstance();
-    // OverwatchInstance(Jarvis const &) = delete;
-    // OverwatchInstance &operator=(Jarvis const &) = delete;
-
-    int run(int const &argc, char const *const *const &argv);
-    // Config const get_config() noexcept;
+    int run(int const &argc, char const *const *const &argv) noexcept;
 
 private:
     // Config config_;

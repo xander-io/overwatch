@@ -10,5 +10,5 @@ target_sources(${OUTPUT_NAME}
 )
 add_subdirectory(liboverwatch)
 
-target_link_libraries(${OUTPUT_NAME} LINK_PUBLIC overwatch)
+target_link_libraries(${OUTPUT_NAME} PRIVATE overwatch)
 install(TARGETS ${OUTPUT_NAME} DESTINATION ${OUTPUT_BIN_DIR})

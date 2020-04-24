@@ -5,7 +5,9 @@ set(OUTPUT_NAME overwatch)
 add_library(${OUTPUT_NAME} STATIC)
 
 target_sources(${OUTPUT_NAME} PRIVATE start.cpp)
-target_include_directories(${OUTPUT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(${OUTPUT_NAME} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_subdirectory(common)
 add_subdirectory(core)
+
+target_link_libraries(${OUTPUT_NAME} PRIVATE Boost::program_options)

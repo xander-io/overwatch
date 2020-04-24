@@ -2,5 +2,5 @@
 
 namespace overwatch
 {
-int start(int const &argc, char const *const *const &argv);
+int start(int const &argc, char const *const *const &argv) noexcept;
 } // namespace overwatch
