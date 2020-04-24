@@ -216,7 +216,8 @@ void init_logging()
         boost::log::add_common_attributes();
         boost::log::add_console_log(std::cout, boost::log::keywords::format = LOGGING_FORMAT);
 #ifdef NDEBUG
-        boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::info);
+        // NOTE: Defaulting to error for release builds in case the user wants to continue using error as log severity level
+        boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::error);
 #else
         boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::debug);
 #endif
@@ -224,7 +225,7 @@ void init_logging()
     }
     else
     {
-        LOG_WARNING << "Logging has already been initialized once... Continuing";
+        LOG_DEBUG << "Unexpected call to init_logger -> Logging has already been initialized once... Continuing";
     }
     LOG_DEBUG << "Logging initialized successfully";
 }
