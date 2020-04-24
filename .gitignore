@@ -31,5 +31,7 @@
 *.out
 *.app
 
+# Misc
 .DS_Store
 build
+.vscode
