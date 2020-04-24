@@ -14,7 +14,6 @@ args_map_t const parse_args(int const &argc, char const *const *const &argv)
 {
     LOG_DEBUG << "Parsing arguments passed in from terminal";
     ArgumentsParser args_parser;
-    // Get jarvis' arg values
     return args_parser.parse(argc, argv);
 }
 } // namespace
@@ -30,7 +29,8 @@ int OverwatchInstance::run(int const &argc, char const *const *const &argv) noex
         common::logging::init_logging();
         // Parse the args and convert to a config
         //args_map_t const args = parse_args(argc, argv);
-        // /* Spawn external threads here and join on them */
+
+        /* PLACEHOLDER -- Spawn additional threads here and join on them */
     }
     catch (std::exception const &e)
     {
