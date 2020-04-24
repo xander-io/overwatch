@@ -4,7 +4,7 @@
 #include "logging.hpp"
 #include "config.hpp"
 
-namespace jarvis::core
+namespace overwatch::core
 {
 Config::Config(std::string const &collection_path, std::string const &logging, int const &interval)
     : collection_path_{collection_path}, logging_{logging}, interval_{interval}
@@ -28,7 +28,7 @@ std::string const Config::to_string(Config const &config) noexcept
     size_t max_value_size = std::max({strlen(collection_path_str.c_str()), strlen(interval_str.c_str()), strlen(logging_str.c_str())});
     size_t const total_banner_symbols = std::max(min_banner_symbols, max_value_size);
 
-    // Display banner with current configuration for jarvis
+    // Display banner with current configuration for overwatch
     std::string const padding{10, ' '};
     std::string const top_banner{std::string(total_banner_symbols / 2, banner_symbol) + banner_title +
                                  std::string(total_banner_symbols / 2, banner_symbol)};
@@ -56,4 +56,4 @@ int Config::get_interval() const noexcept
     return interval_;
 }
 
-} // namespace jarvis::core
+} // namespace overwatch::core

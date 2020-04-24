@@ -5,7 +5,7 @@
 
 #include "logging.hpp"
 
-namespace jarvis::core
+namespace overwatch::core
 {
 class Config
 {
@@ -24,4 +24,4 @@ private:
     std::string logging_;
     int interval_;
 };
-} // namespace jarvis::core
+} // namespace overwatch::core
