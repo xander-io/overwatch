@@ -34,4 +34,5 @@
 # Misc
 .DS_Store
 build
+bin
 .vscode
