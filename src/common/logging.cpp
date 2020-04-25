@@ -136,7 +136,10 @@ LogEntry::LogEntry(LogSeverity const &log_severity, long const &line, std::strin
 
 LogEntry::~LogEntry()
 {
-    log_entry_();
+    if (!entry_.empty())
+    {
+        log_entry_();
+    }
 }
 
 void LogEntry::log_entry_()
@@ -164,6 +167,7 @@ void LogEntry::log_entry_()
     default:
         throw std::runtime_error{"Unexpected Error -> Severity level not known to log entry"};
     }
+    entry_ = "";
 }
 
 LogEntry &LogEntry::operator<<(std::string const &str)
