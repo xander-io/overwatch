@@ -3,25 +3,24 @@
 #include <string>
 #include <filesystem>
 
-#include "logging.hpp"
+#include "arguments_parser.hpp"
 
 namespace overwatch::core
 {
-class Config
-{
-public:
-    Config();
-    Config(std::string const &collection_path, std::string const &logging, int const &interval);
+    class Config
+    {
+    public:
+        Config(args_map_t const &args);
+        std::string const to_string() noexcept;
 
-    static std::string const to_string(Config const &config) noexcept;
+        // Arguments that always contain values
+        std::string const target_ip;
+        std::string const interface;
+        std::string const logging;
 
-    std::string get_collection_path() const noexcept;
-    std::string get_logging() const noexcept;
-    int get_interval() const noexcept;
+        // Arguments with optional values
+        std::unique_ptr<std::string> const arpspoof_host_ip;
 
-private:
-    std::string collection_path_;
-    std::string logging_;
-    int interval_;
-};
+        std::atomic_bool shutdown;
+    };
 } // namespace overwatch::core

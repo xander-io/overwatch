@@ -3,6 +3,7 @@ target_sources(${OUTPUT_NAME}
     PRIVATE
         overwatch_instance.cpp
         arguments_parser.cpp
+        config.cpp
 )
 target_include_directories(${OUTPUT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
