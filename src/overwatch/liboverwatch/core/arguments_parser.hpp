@@ -7,26 +7,28 @@
 
 namespace overwatch::core
 {
-namespace po = boost::program_options;
-enum class Argument
-{
-    Help,
-    Logging,
-    Interval
-};
-using args_map_t = std::unordered_map<Argument, std::any>;
+    namespace boost_po = boost::program_options;
+    enum class Argument
+    {
+        ArpSpoofHost,
+        Interface,
+        Target,
+        Logging,
+    };
 
-class ArgumentsParser
-{
-public:
-    ArgumentsParser();
-    args_map_t parse(int const &argc, char const *const *const &argv);
+    using args_map_t = std::unordered_map<Argument, std::any>;
+    class ArgumentsParser
+    {
+    public:
+        ArgumentsParser();
+        args_map_t parse(int const &argc, char const *const *const &argv);
 
-private:
-    args_map_t convert_to_args_map_(po::variables_map const &map);
-    std::string const get_usage_() const noexcept;
-    std::string const get_descriptions_() const noexcept;
+    private:
+        args_map_t boost_to_args_map_(boost_po::variables_map const &map);
+        std::string const get_usage_() const noexcept;
+        std::string const get_descriptions_() const noexcept;
+        bool valid_ip_arg_(std::string const &ip_str) noexcept;
 
-    po::options_description args_descriptions_;
-};
+        boost_po::options_description args_descriptions_;
+    };
 } // namespace overwatch::core

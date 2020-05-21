@@ -1,107 +1,141 @@
 #include <iostream>
-#include <boost/algorithm/string.hpp>
+#include <regex>
 
 #include "arguments_parser.hpp"
 
 namespace overwatch::core
 {
-namespace
-{
-std::string const help_str = "help";
-std::string const help_str_short = "h";
-std::string const help_option = help_str + "," + help_str_short;
-std::string const help_description = "  Produces a help message";
-
-std::string const time_interval_str = "interval";
-std::string const time_interval_str_short = "i";
-std::string const time_interval_option = time_interval_str + "," + time_interval_str_short;
-std::string const time_interval_description = "  The number of seconds to wait before rerunning";
-int const time_interval_default = -1;
-
-std::string const logging_str = "logging";
-std::string const logging_str_short = "l";
-std::string const logging_option = logging_str + "," + logging_str_short;
-std::string const logging_description = "  Logging output (logging_path:logging_level)";
-std::string const logging_default = ":info";
-
-std::string const path_value_name = "PATH";
-std::string const logging_value_name = "PATH:LEVEL";
-std::string const cmd_usage = "usage: jarvis [-" + help_str_short + "][-" + time_interval_str_short +
-                              " TIME][-" + logging_str_short + " " + logging_value_name + "]";
-} // namespace
-
-ArgumentsParser::ArgumentsParser()
-    : args_descriptions_{"", 1024, 512}
-{
-    // Generate our descriptions for the different options
-    args_descriptions_.add_options()(
-        time_interval_option.c_str(), po::value<int>()->default_value(time_interval_default), time_interval_description.c_str())(
-        logging_option.c_str(), po::value<std::string>()->default_value(logging_default), logging_description.c_str())(
-        help_option.c_str(), help_description.c_str());
-}
-
-args_map_t ArgumentsParser::parse(int const &argc, char const *const *const &argv)
-{
-    po::variables_map map;
-    try
+    namespace
     {
-        // Parse the command line and store it into a variables map
-        po::store(po::parse_command_line(argc, argv, args_descriptions_), map);
-    }
-    catch (std::exception &e)
-    {
-        // Fails if the argument for an option is missing
-        std::string err_str = "Error: " + std::string(e.what()) + "\n" +
-                              get_usage_();
-        throw std::runtime_error{err_str};
-    }
-    // Check if the help option is available
-    if (map.count(help_str) > 0)
-    {
-        std::string help_str = get_usage_() + "\n" + get_descriptions_();
-        throw std::runtime_error{help_str};
-    }
-    args_map_t args;
-    try
-    {
-        // Check for required commands
-        notify(map);
-        args = convert_to_args_map_(map);
-    }
-    catch (std::exception &e)
-    {
-        // Fails if one the required commands is missing
-        std::string err_str = "Error: " + std::string(e.what()) + "\n" +
-                              get_usage_();
-        throw std::runtime_error{err_str};
-    }
-    return args;
-}
+        std::string const help_str_ = "help";
+        std::string const help_str_short_ = "h";
+        std::string const help_option_ = help_str_ + "," + help_str_short_;
+        std::string const help_description_ = "  Produces a help message";
 
-args_map_t ArgumentsParser::convert_to_args_map_(po::variables_map const &map)
-{
-    args_map_t args;
-    // Since logging has a default value no need to check the contents
-    std::string logging_val = map[logging_str].as<std::string>();
-    boost::trim(logging_val);
-    args[Argument::Logging] = logging_val;
+        std::string const arp_str_ = "arpspoof";
+        std::string const arp_str_short_ = "a";
+        std::string const arp_option_ = arp_str_ + "," + arp_str_short_;
+        std::string const arp_description_ = "  Redirects packets to sniff networking traffic (HOST is usually the local gateway)";
 
-    // Since interval has a default value no need to check the contents
-    args[Argument::Interval] = map[time_interval_str].as<int>();
-    return args;
-}
+        std::string const interface_str_ = "interface";
+        std::string const interface_str_short_ = "i";
+        std::string const interface_option_ = interface_str_ + "," + interface_str_short_;
+        std::string const interface_default_ = "eth0";
+        std::string const interface_description_ = "  The interface to watch for network traffic";
 
-std::string const ArgumentsParser::get_usage_() const noexcept
-{
-    //  Return the command usage
-    return cmd_usage + "\n";
-}
+        std::string const target_str_ = "target";
+        std::string const target_str_short_ = "t";
+        std::string const target_option_ = target_str_ + "," + target_str_short_;
+        std::string const target_description_ = "  Specify a host to overwatch";
 
-std::string const ArgumentsParser::get_descriptions_() const noexcept
-{
-    // Converts the descriptions obj to a string to display in the terminal
-    std::ostringstream out_stream;
-    out_stream << args_descriptions_;
-    return out_stream.str();
-}
+        std::string const logging_str_ = "logging";
+        std::string const logging_str_short_ = "l";
+        std::string const logging_option_ = logging_str_ + "," + logging_str_short_;
+        std::string const logging_description_ = "  Logging output (logging_path:logging_level)";
+        std::string const logging_default_ = ":info";
+        std::string const logging_value_name_ = "PATH:LEVEL";
+
+        std::string const cmd_usage_ = "usage: overwatch -" + target_str_short_ + " TARGET [-" + help_str_short_ + "] [-" + arp_str_short_ + " HOST] [-" +
+                                       interface_str_short_ + " INTERFACE] [-" + logging_str_short_ + " " + logging_value_name_ + "]";
+    } // namespace
+
+    ArgumentsParser::ArgumentsParser()
+        : args_descriptions_{"", 1024, 512}
+    {
+        // Generate our descriptions for the different options
+        args_descriptions_.add_options()(
+            help_option_.c_str(), help_description_.c_str())(
+            arp_option_.c_str(), boost_po::value<std::string>(), arp_description_.c_str())(
+            interface_option_.c_str(), boost_po::value<std::string>()->default_value(interface_default_), interface_description_.c_str())(
+            target_option_.c_str(), boost_po::value<std::string>()->required(), target_description_.c_str())(
+            logging_option_.c_str(), boost_po::value<std::string>()->default_value(logging_default_), logging_description_.c_str());
+    }
+
+    args_map_t ArgumentsParser::parse(int const &argc, char const *const *const &argv)
+    {
+        boost_po::variables_map v_map;
+        try
+        {
+            // Parse the command line and store it into a variables v_map
+            boost_po::store(boost_po::parse_command_line(argc, argv, args_descriptions_), v_map);
+        }
+        catch (std::exception &e)
+        {
+            // Fails if the argument for an option is missing
+            std::string err_str = std::string(e.what()) + "\n" +
+                                  get_usage_();
+            throw std::runtime_error{err_str};
+        }
+        // Check if the help option is available
+        if (v_map.count(help_str_) > 0)
+        {
+            std::string help_str_ = get_usage_() + "\n" + get_descriptions_();
+            throw std::runtime_error{help_str_};
+        }
+        args_map_t args;
+        try
+        {
+            // Check for required commands
+            notify(v_map);
+            args = boost_to_args_map_(v_map);
+        }
+        catch (std::exception &e)
+        {
+            // Fails if one the required commands is missing
+            std::string err_str = std::string(e.what()) + "\n" +
+                                  get_usage_();
+            throw std::runtime_error{err_str};
+        }
+        return args;
+    }
+
+    args_map_t ArgumentsParser::boost_to_args_map_(boost_po::variables_map const &v_map)
+    {
+        args_map_t args;
+        if (v_map.count(arp_str_) > 0)
+        {
+            std::string const arp_spoof_ip = v_map[arp_str_].as<std::string>();
+            if (!valid_ip_arg_(arp_spoof_ip))
+            {
+                throw std::runtime_error{"arpspoof host must be a valid IP address"};
+            }
+            args[Argument::ArpSpoofHost] = arp_spoof_ip;
+        }
+
+        // Interface has a default value - no need to check the contents
+        args[Argument::Interface] = v_map[interface_str_].as<std::string>();
+
+        // Target is required - no need to check if contents exist
+        std::string const target_ip = v_map[target_str_].as<std::string>();
+        if (!valid_ip_arg_(target_ip))
+        {
+            throw std::runtime_error{"target host must be a valid IP address"};
+        }
+        args[Argument::Target] = target_ip;
+
+        // Since logging has a default value no need to check the contents
+        std::string logging_val = v_map[logging_str_].as<std::string>();
+        args[Argument::Logging] = logging_val;
+        return args;
+    }
+
+    bool ArgumentsParser::valid_ip_arg_(std::string const &ip_str) noexcept
+    {
+        std::regex ip_regex{"^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$"};
+        return std::regex_match(ip_str, ip_regex);
+    }
+
+    std::string const ArgumentsParser::get_usage_() const noexcept
+    {
+        //  Return the command usage
+        return cmd_usage_ + "\n";
+    }
+
+    std::string const ArgumentsParser::get_descriptions_() const noexcept
+    {
+        // Converts the descriptions obj to a string to display in the terminal
+        std::ostringstream out_stream;
+        out_stream << args_descriptions_;
+        return out_stream.str();
+    }
 } // namespace overwatch::core
