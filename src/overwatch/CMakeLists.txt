@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14.0)
 
 # Set the currrent binary name to Overwatch
-set(OUTPUT_NAME overwatch_${CMAKE_SYSTEM_NAME})
+set(OUTPUT_NAME overwatch_${CMAKE_SYSTEM_NAME}_${CMAKE_BUILD_TYPE})
 add_executable(${OUTPUT_NAME})
 
 target_sources(${OUTPUT_NAME}
