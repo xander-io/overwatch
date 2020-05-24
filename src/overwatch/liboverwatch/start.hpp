@@ -20,5 +20,11 @@
 
 namespace overwatch
 {
+    /**
+     * Starts the overwatch instance
+     * @param argc Number of arguments
+     * @param argv Argument values
+     * @return If the app succeeds or fails
+     */
     int start(int const &argc, char const *const *const &argv) noexcept;
 } // namespace overwatch

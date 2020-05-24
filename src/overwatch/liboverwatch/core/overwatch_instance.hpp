@@ -26,20 +26,54 @@
 
 namespace overwatch::core
 {
+    /**
+     * Main class that controls the overwatch instance
+     */
     class OverwatchInstance
     {
     public:
+        /**
+         * Constructor for the overwatch instance
+         */
         OverwatchInstance();
+        /**
+         * Runs the overwatch instance
+         * @param[in] argc Number of arguments
+         * @param[in] argv Argument values
+         * @return If the instance succeeds or fails
+         */
         int run(int const &argc, char const *const *const &argv) noexcept;
+        /**
+         * Shuts down the overwatch instance
+         */
         void shutdown() noexcept;
+        /**
+         * Retrieves the config for the overwatch instance
+         * 
+         * @return The config
+         */
         Config const get_config() noexcept;
 
     private:
+        /**
+         * Parses the args passed in from the user
+         * 
+         * @param[in] argc Number of arguments
+         * @param[in] argv Argument values
+         * @return The arguments in an unordered map
+         */
         args_map_t const parse_args_(int const &argc, char const *const *const &argv);
-        //void init_*();
+        // FTODO: int init_*();
+        /**
+         * Causes the main thread to sleep waiting for the external shutdown to be set 
+         */
         void sleep_();
+        /**
+         * Waits for the child threads to clean up once the shutdown signal has been set
+         */
         void wait_on_threads_();
 
+        // The config of the overwatch instance
         std::unique_ptr<Config> config_;
     };
 } // namespace overwatch::core

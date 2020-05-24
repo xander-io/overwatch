@@ -20,6 +20,13 @@
 
 #include "start.hpp"
 
+/**
+ * Entry point for the overwatch executable
+ * 
+ * @param[in] argc Number of arguments
+ * @param[in] argv Argument values
+ * @return If the app succeeds or fails
+ */
 int main(int const argc, char const *const *const argv)
 {
     std::future<int> exit_code = std::async(overwatch::start, argc, argv);

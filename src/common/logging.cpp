@@ -28,6 +28,7 @@
 
 #include "logging.hpp"
 
+// Logging format used when setting up the logger
 #ifdef NDEBUG
 #define LOGGING_FORMAT "[%TimeStamp%] %LogSeverity% - %Message%"
 #else
@@ -40,8 +41,15 @@ namespace common::logging
 
     namespace
     {
-        std::atomic<bool> initialized = false;
+        // Internal bool to keep track of initialization state
+        std::atomic_bool initialized = false;
 
+        /**
+         * Transforms a logging severity to a string
+         * 
+         * @param[in] log_severity The severity to convert to a string
+         * @return The string equivalent of the logging severity
+         */
         std::string log_severity_to_string_(LogSeverity const &log_severity)
         {
             std::string log_severity_str;
@@ -65,6 +73,13 @@ namespace common::logging
             return log_severity_str;
         }
 
+        /**
+         * Transforms a string to a logging severity
+         * 
+         * @param[in] log_severity_str The string to convert to a LogSeverity
+         * @return The LogSeverity equivalent of the string
+         * @see LogSeverity
+         */
         LogSeverity string_to_log_severity_(std::string const &log_severity_str)
         {
             LogSeverity log_severity = LogSeverity::UNKNOWN;
@@ -87,36 +102,51 @@ namespace common::logging
             return log_severity;
         }
 
-        void parse_string_(std::string const &logging_str, std::filesystem::path *file_path, LogSeverity *log_severity)
+        /**
+         * Parses a formatted logging string into its respective file path and log severity
+         * 
+         * @param[in] formatted_logging_str The string to convert to a LogSeverity
+         * @param[out] file_path The file path parsed from the formatted logging string
+         * @param[out] log_severity The logging severity parsed from the formatted logging string
+         * @throw std::invalid_argument If the logging string is formatted incorrectly
+         */
+        void parse_formatted_log_string_(std::string const &formatted_logging_str, std::filesystem::path *file_path, LogSeverity *log_severity)
         {
             // This should never happen unless the developer makes a mistake
             if (file_path == nullptr || log_severity == nullptr)
             {
-                throw std::runtime_error{"At least one logging parameter must not be null"};
+                throw std::invalid_argument{"At least one logging parameter must not be null"};
             }
 
-            size_t delimiter_index = logging_str.find(":");
+            size_t delimiter_index = formatted_logging_str.find(":");
             if (delimiter_index == std::string::npos)
             {
-                throw std::runtime_error{"Logging string formatted incorrectly"};
+                throw std::invalid_argument{"Logging string formatted incorrectly"};
             }
             // First index is the logging file, second index is the severity
             if (delimiter_index > 0)
             {
-                *file_path = std::filesystem::path{logging_str.substr(0, delimiter_index)};
+                *file_path = std::filesystem::path{formatted_logging_str.substr(0, delimiter_index)};
             }
-            std::string log_severity_str = logging_str.substr(delimiter_index + 1, logging_str.size());
+            std::string log_severity_str = formatted_logging_str.substr(delimiter_index + 1, formatted_logging_str.size());
             std::transform(log_severity_str.begin(), log_severity_str.end(),
                            log_severity_str.begin(), [](unsigned char c) { return std::tolower(c); });
 
-            LOG_DEBUG << "[LOGGING_STR] = " << logging_str
+            LOG_DEBUG << "[LOGGING] = " << formatted_logging_str
                       << "; [FILE_PATH] = " << *file_path
-                      << "; [SEVERITY_STR] = " << log_severity_str;
+                      << "; [SEVERITY] = " << log_severity_str;
 
             *log_severity = string_to_log_severity_(log_severity_str);
         }
 
-        // Set value for dynamically changing thread attributes
+        /**
+         * Sets the value for dynamically changing thread attributes for logging purposes.
+         * Used in this scenario to add the line and function names
+         * 
+         * @tparam T the value of the attribute to set
+         * @param[in] name The name of the attribute
+         * @param[in] value The value of the attribute
+         */
         template <typename T>
         void set_logging_thread_attribute_(std::string const &name, T const &value)
         {
@@ -218,7 +248,7 @@ namespace common::logging
         return *this;
     }
 
-    LogEntry &LogEntry::operator<<(ostream_function const &func)
+    LogEntry &LogEntry::operator<<(ostream_function const &)
     {
         log_entry_();
         return *this;
@@ -238,13 +268,13 @@ namespace common::logging
             LOG_DEBUG << "Switching logging to file '" << file_path_str << "' with severity '" << max_severity << "'";
             if (max_severity == LogSeverity::UNKNOWN)
             {
-                throw std::runtime_error{"Invalid logging severity"};
+                throw std::invalid_argument{"Invalid logging severity"};
             }
             file_path_str = file_path.empty() ? "console" : file_path.u8string();
 
             if (!file_path.empty() && std::filesystem::is_directory(file_path))
             {
-                throw std::runtime_error{"'" + file_path_str + "' is not a valid logging file"};
+                throw std::invalid_argument{"'" + file_path_str + "' is not a valid logging file"};
             }
 
             switch (max_severity)
@@ -262,10 +292,10 @@ namespace common::logging
                 boost_severity = boost_log::trivial::error;
                 break;
             default:
-                throw std::runtime_error{"Logging severity not supported"};
+                throw std::invalid_argument{"Logging severity not supported"};
             }
         }
-        catch (std::runtime_error const &e)
+        catch (std::invalid_argument const &e)
         {
             // Error during the initialization phase - set the logger to something valid such that the error gets logged properly
             if (!initialized)
@@ -308,7 +338,7 @@ namespace common::logging
         {
             std::filesystem::path path;
             LogSeverity severity = LogSeverity::UNKNOWN;
-            parse_string_(formatted_log_str, &path, &severity);
+            parse_formatted_log_string_(formatted_log_str, &path, &severity);
             set_logger(path, severity);
         }
         catch (std::runtime_error const &e)

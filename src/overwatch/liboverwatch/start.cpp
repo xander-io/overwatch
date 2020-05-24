@@ -16,8 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <iostream>
 #include <signal.h>
+#include <iostream>
 
 #include "start.hpp"
 #include "overwatch_instance.hpp"
@@ -26,7 +26,13 @@ namespace overwatch
 {
     namespace
     {
+        // The single instance used in the overwatch application
         overwatch::core::OverwatchInstance instance;
+        /**
+         * Clean up the overwatch instance once a signal is fired
+         * 
+         * @param[in] The signal
+         */
         void cleanup_(int) noexcept
         {
             instance.shutdown();

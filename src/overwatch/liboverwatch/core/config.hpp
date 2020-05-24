@@ -25,20 +25,40 @@
 
 namespace overwatch::core
 {
+    /**
+     * Holds the configuration data for the overwatch instance
+     */
     class Config
     {
     public:
+        /**
+         * Constructor for the overwatch config
+         * 
+         * @param[in] args Argument map used to convert to a configuration object
+         */
         Config(args_map_t const &args);
+        /**
+         * Converts the config object to a printable string
+         *
+         * @return The confiugration in string format
+         */
         std::string const to_string() noexcept;
 
-        // Arguments that always contain values
+        //////// Required configuration options ////////
+        // Target IP address to watch for networking activies
         std::string const target_ip;
+        // Interface to be listening for networking activies
         std::string const interface;
+        // Logging format
         std::string const logging;
+        ////////////////////////////////////////////////
 
-        // Arguments with optional values
+        //////// Optional configuration options ////////
+        // Arpspoof IP to mimic the host and redirect network packets
         std::unique_ptr<std::string> const arpspoof_host_ip;
+        ////////////////////////////////////////////////
 
+        // Shutdown signal
         std::atomic_bool shutdown;
     };
 } // namespace overwatch::core
