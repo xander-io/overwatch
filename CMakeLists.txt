@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14.0)
 project(overwatch)
 
 set(Boost_DEBUG 1)
-set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_STATIC_LIBS OFF)
 find_package(Boost 1.65.0 COMPONENTS program_options log log_setup REQUIRED) 
 
 set(OUTPUT_BIN_DIR ${PROJECT_SOURCE_DIR}/bin)
