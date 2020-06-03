@@ -8,7 +8,7 @@ find_package(Boost 1.72.0 COMPONENTS program_options log log_setup REQUIRED)
 
 set(OUTPUT_BIN_DIR ${PROJECT_SOURCE_DIR}/bin)
 if (CMAKE_COMPILER_IS_GNUCC)
-    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror")
+    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -no-pie")
 endif()
 if (MSVC)
     set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /W4 /WX")
