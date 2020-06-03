@@ -13,11 +13,13 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
-    - name: install dependencies
-      run: brew install boost@1.72 gcc@8
+    - name: Install boost dependency
+      run: brew install boost@1.72
     - name: configure
       run: mkdir build && cd build && cmake ..
     - name: build
+      env:
+        CXX: /usr/local/bin/g++-8
       run: cmake --build build --config Release --target install
     - name: test
       run: cd bin && ./unit_tests-Release
