@@ -17,7 +17,7 @@ jobs:
       run: brew install boost@1.72
     - name: configure
       env:
-        C: gcc-8
+        CC: gcc-8
         CXX: g++-8
       run: mkdir build && cd build && cmake ..
     - name: build

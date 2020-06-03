@@ -25,11 +25,11 @@ namespace overwatch::core
 {
     Config::Config(args_map_t const &args)
         : target_ip{std::any_cast<std::string>(args.at(Argument::Target))},
+          interface{std::any_cast<std::string>(args.at(Argument::Interface))},
+          logging{std::any_cast<std::string>(args.at(Argument::Logging))},
           arpspoof_host_ip{(args.find(Argument::ArpSpoofHost) == args.end())
                                ? nullptr
                                : new std::string{std::any_cast<std::string>(args.at(Argument::ArpSpoofHost))}},
-          interface{std::any_cast<std::string>(args.at(Argument::Interface))},
-          logging{std::any_cast<std::string>(args.at(Argument::Logging))},
           shutdown{false}
     {
     }
