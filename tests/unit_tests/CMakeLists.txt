@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14.0)
 
-set(CONTEXT unit_tests)
+set(CONTEXT unit_tests-${CMAKE_BUILD_TYPE})
 add_executable(${CONTEXT})
 
 target_sources(${CONTEXT}

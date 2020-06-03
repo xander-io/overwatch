@@ -61,7 +61,7 @@ namespace overwatch::core
         std::string const padding{10, ' '};
         std::string const top_banner{std::string(total_banner_symbols / 2, banner_symbol) + banner_title +
                                      std::string(total_banner_symbols / 2, banner_symbol)};
-        std::string const bottom_banner{std::string(strlen(top_banner.c_str()), banner_symbol)};
+        std::string const bottom_banner{std::string(top_banner.length(), banner_symbol)};
         config_str += "\n\t\t" + top_banner + "\n";
         config_str += "\t\t\tTarget IP: \t\t" + *target_ip_value + "\n";
         config_str += "\t\t\tArpspoof Host IP: \t" + *arpspoof_host_ip_value + "\n";
