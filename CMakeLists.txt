@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.14.0)
 project(overwatch)
 
+set(POSITION_INDEPENDENT_CODE OFF)
 set(Boost_USE_STATIC_LIBS ON)
 set(BOOST_ROOT BOOST_ROOT_1_69_0)
 find_package(Boost 1.69.0 COMPONENTS program_options log log_setup REQUIRED) 

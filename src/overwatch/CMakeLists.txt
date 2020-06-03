@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.14.0)
 # Set the currrent binary name to Overwatch
 set(CONTEXT overwatch-${CMAKE_BUILD_TYPE})
 add_executable(${CONTEXT})
-set_target_properties(${CONTEXT} PROPERTIES POSITION_INDEPENDENT_CODE OFF)
 target_sources(${CONTEXT}
     PRIVATE
         main.cpp
