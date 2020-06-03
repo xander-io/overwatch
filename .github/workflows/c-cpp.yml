@@ -18,7 +18,7 @@ jobs:
     - name: configure
       env:
         C: gcc-8
-        CXX: g++8
+        CXX: g++-8
       run: mkdir build && cd build && cmake ..
     - name: build
       run: cmake --build build --config Release --target install
