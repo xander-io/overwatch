@@ -21,13 +21,13 @@ jobs:
         CXX: g++-8
       run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE:STRING=MinSizeRel
     - name: Build
-      run: cmake --build build --config Release --target install
+      run: cmake --build build --config Release --target install && mv bin/overwatch-MinSizeRel bin/overwatch
     - name: Run unit tests
       run: cd bin && ./unit_tests
     - uses: actions/upload-artifact@v2
       with:
         name: overwatch_LINUX
-        path: bin/overwatch-MinSizeRel
+        path: bin/overwatch
 
   build-windows:
 
