@@ -4,5 +4,5 @@ cmake_minimum_required(VERSION 3.14.0)
 set(CONTEXT overwatch)
 add_library(${CONTEXT} STATIC)
 
-add_subdirectory(common)
 add_subdirectory(core)
+target_link_libraries(${CONTEXT} INTERFACE common PUBLIC Boost::program_options)

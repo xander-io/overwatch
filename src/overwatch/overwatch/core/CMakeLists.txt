@@ -5,5 +5,3 @@ target_sources(${CONTEXT}
         config.cpp
 )
 target_include_directories(${CONTEXT} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(${CONTEXT} INTERFACE Boost::program_options)
-
