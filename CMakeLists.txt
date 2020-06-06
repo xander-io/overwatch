@@ -1,10 +1,8 @@
 cmake_minimum_required(VERSION 3.14.0)
 project(overwatch)
 
-set(Boost_USE_STATIC_LIBS ON)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE OFF)
-find_package(Boost 1.72.0 COMPONENTS program_options log log_setup REQUIRED) 
 
 set(OUTPUT_BIN_DIR ${PROJECT_SOURCE_DIR}/bin)
 message(${CMAKE_CXX_COMPILER_ID})
@@ -14,10 +12,14 @@ elseif (CMAKE_COMPILER_IS_GNUCC)
     set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -no-pie")
 else()
     set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /W4 /WX")
+    set(BOOST_ROOT BOOST_ROOT_1_72_0)
 endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_STANDARD 17)
+
+set(Boost_USE_STATIC_LIBS ON)
+find_package(Boost 1.72.0 COMPONENTS program_options log log_setup REQUIRED) 
 
 add_subdirectory(src)
 add_subdirectory(tests)
