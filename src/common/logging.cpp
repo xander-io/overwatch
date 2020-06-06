@@ -126,7 +126,7 @@ namespace common::logging
             // First index is the logging file, second index is the severity
             if (delimiter_index > 0)
             {
-                *file_path = std::filesystem::path{formatted_logging_str.substr(0, delimiter_index)};
+                *file_path = formatted_logging_str.substr(0, delimiter_index);
             }
             std::string log_severity_str = formatted_logging_str.substr(delimiter_index + 1, formatted_logging_str.size());
             std::transform(log_severity_str.begin(), log_severity_str.end(),
