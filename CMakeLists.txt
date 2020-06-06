@@ -18,6 +18,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_STANDARD 17)
 
+set(Boost_DEBUG ON)
 set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost 1.72.0 COMPONENTS program_options log log_setup REQUIRED) 
 
