@@ -87,8 +87,8 @@ namespace overwatch::core
         // Check if the help option is available
         if (v_map.count(help_str_) > 0)
         {
-            std::string help_str_ = get_usage_() + "\n" + get_descriptions_();
-            throw std::runtime_error{help_str_};
+            std::string const help = get_usage_() + "\n" + get_descriptions_();
+            throw std::runtime_error{help};
         }
         args_map_t args;
         try
