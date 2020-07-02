@@ -130,7 +130,7 @@ namespace common::logging
             }
             std::string log_severity_str = formatted_logging_str.substr(delimiter_index + 1, formatted_logging_str.size());
             std::transform(log_severity_str.begin(), log_severity_str.end(),
-                           log_severity_str.begin(), ::tolower);
+                           log_severity_str.begin(), [](char c) { return static_cast<char>(std::tolower(c)); });
 
             LOG_DEBUG << "[LOGGING] = " << formatted_logging_str
                       << "; [FILE_PATH] = " << file_path->u8string()
