@@ -25,7 +25,7 @@ namespace overwatch::core
 {
     Config::Config(args_map_t const &args)
         : target_ip{std::any_cast<std::string>(args.at(Argument::Target))},
-          interface{std::any_cast<std::string>(args.at(Argument::Interface))},
+          iface{std::any_cast<std::string>(args.at(Argument::Interface))},
           logging{std::any_cast<std::string>(args.at(Argument::Logging))},
           arpspoof_host_ip{(args.find(Argument::ArpSpoofHost) == args.end())
                                ? nullptr
@@ -48,7 +48,7 @@ namespace overwatch::core
         // Determine parameter values
         std::string const *const target_ip_value = &target_ip;
         std::string const *const arpspoof_host_ip_value = arpspoof_host_ip ? arpspoof_host_ip.get() : &disabled_value;
-        std::string const *const interface_value = &interface;
+        std::string const *const interface_value = &iface;
         std::string const *const logging_value = &logging;
 
         // Determine which value given is the largest

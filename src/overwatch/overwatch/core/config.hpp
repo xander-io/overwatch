@@ -49,7 +49,7 @@ namespace overwatch::core
         // Target IP address to watch for networking activies
         std::string const target_ip;
         // Interface to be listening for networking activies
-        std::string const interface;
+        std::string const iface;
         // Logging format
         std::string const logging;
         ////////////////////////////////////////////////
