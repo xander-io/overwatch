@@ -19,6 +19,9 @@
 #include <signal.h>
 #include <iostream>
 
+#ifdef _WIN32
+#include "windows.hpp"
+#endif
 #include "config.hpp"
 #include "logging.hpp"
 #include "arguments_parser.hpp"
@@ -66,7 +69,6 @@ namespace
     void init_signals_() noexcept
     {
         LOG_DEBUG << "Adding cleanup signals";
-        signal(SIGHUP, cleanup_);
         signal(SIGINT, cleanup_);
         signal(SIGTERM, cleanup_);
     }
