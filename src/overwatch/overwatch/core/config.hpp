@@ -20,6 +20,7 @@
 
 #include <string>
 #include <filesystem>
+#include <memory>
 
 #include "arguments_parser.hpp"
 

@@ -18,6 +18,7 @@
 
 #include <signal.h>
 #include <iostream>
+#include <memory>
 
 #ifdef _WIN32
 #include "windows.hpp"
