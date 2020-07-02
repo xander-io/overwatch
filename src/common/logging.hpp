@@ -41,7 +41,7 @@ namespace common::logging
      * 
      * The logging severity is used to determine the verbosity of the logging output.
      */
-    enum class LogSeverity
+    enum class LogSeverity : int
     {
         UNKNOWN = -1,
         DEBUG,
