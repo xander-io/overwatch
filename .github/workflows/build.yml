@@ -36,8 +36,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Configure
-      env:
-        BOOST_ROOT: $ENV{BOOST_ROOT_1_72_0}
       run: mkdir build && cd build && cmake ..
     - name: Build
       run: cmake --build build --config Release --target install
