@@ -38,6 +38,8 @@ jobs:
     - name: Install Boost Dependency
       run: brew install boost
     - name: Configure
+      env:
+        BOOST_ROOT: BOOST_ROOT_1_72_0
       run: mkdir build && cd build && cmake ..
     - name: Build
       run: cmake --build build --config Release --target install
