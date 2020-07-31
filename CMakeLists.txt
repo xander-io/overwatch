@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.14.0)
-project(overwatch)
+project(overwatch
+            VERSION 0.0.1)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE OFF)
