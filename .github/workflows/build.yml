@@ -13,6 +13,8 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
+    - name: Install Boost Dependency
+      run: brew install boost
     - name: Configure
       env:
         CC: gcc-8
@@ -21,7 +23,7 @@ jobs:
     - name: Build
       run: cmake --build build --config Release --target install
     - name: Run unit tests
-      run: cd bin && ./unit_tests && mv overwatch-* overwatch
+      run: cd bin && ./unit_tests && mv overwatch_* overwatch
     - uses: actions/upload-artifact@v2
       with:
         name: overwatch_LINUX
@@ -33,12 +35,14 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
+    - name: Install Boost Dependency
+      run: brew install boost
     - name: Configure
       run: mkdir build && cd build && cmake ..
     - name: Build
       run: cmake --build build --config Release --target install
     - name: Run unit tests
-      run: cd bin && ./unit_tests && mv overwatch-* overwatch
+      run: cd bin && ./unit_tests && mv overwatch_* overwatch
     - uses: actions/upload-artifact@v2
       with:
         name: overwatch_WINDOWS
