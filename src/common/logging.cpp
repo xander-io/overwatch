@@ -55,16 +55,16 @@ namespace common::logging
             std::string log_severity_str;
             switch (log_severity)
             {
-            case LogSeverity::DEBUG:
+            case LogSeverity::Debug:
                 log_severity_str = "DEBUG";
                 break;
-            case LogSeverity::INFO:
+            case LogSeverity::Info:
                 log_severity_str = "INFO";
                 break;
-            case LogSeverity::WARNING:
+            case LogSeverity::Warning:
                 log_severity_str = "WARNING";
                 break;
-            case LogSeverity::ERROR:
+            case LogSeverity::Error:
                 log_severity_str = "ERROR";
                 break;
             default:
@@ -82,22 +82,22 @@ namespace common::logging
          */
         LogSeverity string_to_log_severity_(std::string const &log_severity_str)
         {
-            LogSeverity log_severity = LogSeverity::UNKNOWN;
+            LogSeverity log_severity = LogSeverity::Unknown;
             if (log_severity_str == "debug")
             {
-                log_severity = LogSeverity::DEBUG;
+                log_severity = LogSeverity::Debug;
             }
             else if (log_severity_str == "info")
             {
-                log_severity = LogSeverity::INFO;
+                log_severity = LogSeverity::Info;
             }
             else if (log_severity_str == "warning")
             {
-                log_severity = LogSeverity::WARNING;
+                log_severity = LogSeverity::Warning;
             }
             else if (log_severity_str == "error")
             {
-                log_severity = LogSeverity::ERROR;
+                log_severity = LogSeverity::Error;
             }
             return log_severity;
         }
@@ -194,16 +194,16 @@ namespace common::logging
     {
         switch (log_severity_)
         {
-        case LogSeverity::DEBUG:
+        case LogSeverity::Debug:
             BOOST_LOG_TRIVIAL(debug) << entry_;
             break;
-        case LogSeverity::INFO:
+        case LogSeverity::Info:
             BOOST_LOG_TRIVIAL(info) << entry_;
             break;
-        case LogSeverity::WARNING:
+        case LogSeverity::Warning:
             BOOST_LOG_TRIVIAL(warning) << entry_;
             break;
-        case LogSeverity::ERROR:
+        case LogSeverity::Error:
             BOOST_LOG_TRIVIAL(error) << entry_;
             break;
         default:
@@ -266,7 +266,7 @@ namespace common::logging
         try
         {
             LOG_DEBUG << "Switching logging to file '" << file_path_str << "' with severity '" << max_severity << "'";
-            if (max_severity == LogSeverity::UNKNOWN)
+            if (max_severity == LogSeverity::Unknown)
             {
                 throw std::invalid_argument{"Invalid logging severity"};
             }
@@ -279,16 +279,16 @@ namespace common::logging
 
             switch (max_severity)
             {
-            case LogSeverity::DEBUG:
+            case LogSeverity::Debug:
                 boost_severity = boost_log::trivial::debug;
                 break;
-            case LogSeverity::INFO:
+            case LogSeverity::Info:
                 boost_severity = boost_log::trivial::info;
                 break;
-            case LogSeverity::WARNING:
+            case LogSeverity::Warning:
                 boost_severity = boost_log::trivial::warning;
                 break;
-            case LogSeverity::ERROR:
+            case LogSeverity::Error:
                 boost_severity = boost_log::trivial::error;
                 break;
             default:
@@ -300,7 +300,7 @@ namespace common::logging
             // Error during the initialization phase - set the logger to something valid such that the error gets logged properly
             if (!initialized)
             {
-                set_logger(std::filesystem::path{}, LogSeverity::ERROR);
+                set_logger(std::filesystem::path{}, LogSeverity::Error);
             }
             throw e;
         }
@@ -337,7 +337,7 @@ namespace common::logging
         try
         {
             std::filesystem::path path;
-            LogSeverity severity = LogSeverity::UNKNOWN;
+            LogSeverity severity = LogSeverity::Unknown;
             parse_formatted_log_string_(formatted_log_str, &path, &severity);
             set_logger(path, severity);
         }
@@ -346,7 +346,7 @@ namespace common::logging
             // Error during the initialization phase - set the logger to something valid such that the error gets logged properly
             if (!initialized)
             {
-                set_logger(std::filesystem::path{}, LogSeverity::ERROR);
+                set_logger(std::filesystem::path{}, LogSeverity::Error);
             }
             throw e;
         }

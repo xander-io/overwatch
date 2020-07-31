@@ -22,16 +22,16 @@
 #include <filesystem>
 
 #ifdef NDEBUG
-#define LOG_DEBUG common::logging::LogEntry(common::logging::LogSeverity::DEBUG)
-#define LOG_INFO common::logging::LogEntry(common::logging::LogSeverity::INFO)
-#define LOG_WARNING common::logging::LogEntry(common::logging::LogSeverity::WARNING)
-#define LOG_ERROR common::logging::LogEntry(common::logging::LogSeverity::ERROR)
+#define LOG_DEBUG common::logging::LogEntry(common::logging::LogSeverity::Debug)
+#define LOG_INFO common::logging::LogEntry(common::logging::LogSeverity::Info)
+#define LOG_WARNING common::logging::LogEntry(common::logging::LogSeverity::Warning)
+#define LOG_ERROR common::logging::LogEntry(common::logging::LogSeverity::Error)
 #else
 // Adding the line and function to debug logging output
-#define LOG_DEBUG common::logging::LogEntry(common::logging::LogSeverity::DEBUG, __LINE__, __func__)
-#define LOG_INFO common::logging::LogEntry(common::logging::LogSeverity::INFO, __LINE__, __func__)
-#define LOG_WARNING common::logging::LogEntry(common::logging::LogSeverity::WARNING, __LINE__, __func__)
-#define LOG_ERROR common::logging::LogEntry(common::logging::LogSeverity::ERROR, __LINE__, __func__)
+#define LOG_DEBUG common::logging::LogEntry(common::logging::LogSeverity::Debug, __LINE__, __func__)
+#define LOG_INFO common::logging::LogEntry(common::logging::LogSeverity::Info, __LINE__, __func__)
+#define LOG_WARNING common::logging::LogEntry(common::logging::LogSeverity::Warning, __LINE__, __func__)
+#define LOG_ERROR common::logging::LogEntry(common::logging::LogSeverity::Error, __LINE__, __func__)
 #endif
 
 namespace common::logging
@@ -41,13 +41,13 @@ namespace common::logging
      * 
      * The logging severity is used to determine the verbosity of the logging output.
      */
-    enum class LogSeverity : int
+    enum class LogSeverity
     {
-        UNKNOWN = -1,
-        DEBUG,
-        INFO,
-        WARNING,
-        ERROR
+        Unknown = -1,
+        Debug,
+        Info,
+        Warning,
+        Error
     };
 
     typedef std::ostream &(*ostream_function)(std::ostream &);
