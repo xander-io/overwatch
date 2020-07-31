@@ -13,17 +13,15 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
-    - name: Install dependencies
-      run: brew install boost
     - name: Configure
       env:
         CC: gcc-8
         CXX: g++-8
-      run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE:STRING=MinSizeRel
+      run: mkdir build && cd build && cmake ..
     - name: Build
-      run: cmake --build build --config Release --target install && mv bin/overwatch-MinSizeRel bin/overwatch
+      run: cmake --build build --config Release --target install
     - name: Run unit tests
-      run: cd bin && ./unit_tests
+      run: cd bin && ./unit_tests && mv overwatch-* overwatch
     - uses: actions/upload-artifact@v2
       with:
         name: overwatch_LINUX
@@ -36,11 +34,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Configure
-      run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE:STRING=MinSizeRel
+      run: mkdir build && cd build && cmake ..
     - name: Build
-      run: cmake --build build --config Release --target install && mv bin/overwatch-MinSizeRel bin/overwatch
+      run: cmake --build build --config Release --target install
     - name: Run unit tests
-      run: cd bin && ./unit_tests
+      run: cd bin && ./unit_tests && mv overwatch-* overwatch
     - uses: actions/upload-artifact@v2
       with:
         name: overwatch_WINDOWS
