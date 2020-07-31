@@ -41,3 +41,7 @@ jobs:
       run: cmake --build build --config Release --target install
     - name: Run unit tests
       run: cd bin && ./unit_tests
+    - uses: actions/upload-artifact@v2
+      with:
+        name: overwatch_WINDOWS
+        path: bin/overwatch
