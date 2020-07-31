@@ -38,7 +38,7 @@ jobs:
     - name: Configure
       run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE:STRING=MinSizeRel
     - name: Build
-      run: cmake --build build --config Release --target install
+      run: cmake --build build --config Release --target install && mv bin/overwatch-MinSizeRel bin/overwatch
     - name: Run unit tests
       run: cd bin && ./unit_tests
     - uses: actions/upload-artifact@v2
