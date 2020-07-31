@@ -35,8 +35,6 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
-    - name: Install Boost Dependency
-      run: brew install boost
     - name: Configure
       env:
         BOOST_ROOT: BOOST_ROOT_1_72_0
