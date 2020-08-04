@@ -19,6 +19,7 @@
 #include <atomic>
 #include <filesystem>
 #include <fstream>
+#include <stdexcept>
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/log/utility/setup/console.hpp>

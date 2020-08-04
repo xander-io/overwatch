@@ -17,6 +17,7 @@
  */
 
 #include <algorithm>
+#include <stdexcept>
 
 #include "config.hpp"
 #include "utils.hpp"
