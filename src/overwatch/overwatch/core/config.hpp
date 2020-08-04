@@ -19,10 +19,7 @@
 #pragma once
 
 #include <string>
-#include <filesystem>
-#include <memory>
-
-#include "arguments_parser.hpp"
+#include <optional>
 
 namespace overwatch::core
 {
@@ -33,33 +30,57 @@ namespace overwatch::core
     {
     public:
         /**
-         * Constructor for the overwatch config
-         * 
-         * @param[in] args Argument map used to convert to a configuration object
+         * Constructors for overwatch configurations
          */
-        Config(args_map_t const &args);
+        Config();
+        Config(std::string target_ip, std::string iface,
+               std::string logging, std::optional<std::string> arpspoof_host_ip);
+
+        /**
+         * Overloaded = operator to create a new config from the
+         * existing global config
+         * @param[in] config The new config to replace the existing one
+         */
+        void operator=(Config const &&config);
+
+        // Getters and setters for config
+        std::string get_target_ip() noexcept;
+        std::string get_interface() noexcept;
+        std::string get_logging() noexcept;
+        std::optional<std::string> get_arpspoof_host_ip() noexcept;
+        bool is_shutdown() noexcept;
+        void signal_shutdown() noexcept;
+
+        /**
+         * Validates the config items
+         */
+        void validate();
+
         /**
          * Converts the config object to a printable string
-         *
          * @return The confiugration in string format
          */
         std::string const to_string() noexcept;
 
-        //////// Required configuration options ////////
+    private:
+        //////////////// REQUIRED ////////////////
         // Target IP address to watch for networking activies
-        std::string const target_ip;
+        std::string target_ip_;
         // Interface to be listening for networking activies
-        std::string const iface;
+        std::string iface_;
         // Logging format
-        std::string const logging;
-        ////////////////////////////////////////////////
+        std::string logging_;
+        /////////////////////////////////////////
 
-        //////// Optional configuration options ////////
+        //////////////// OPTIONAL ////////////////
         // Arpspoof IP to mimic the host and redirect network packets
-        std::unique_ptr<std::string> const arpspoof_host_ip;
-        ////////////////////////////////////////////////
+        std::optional<std::string> arpspoof_host_ip_;
+        //////////////////////////////////////////
 
-        // Shutdown signal
-        std::atomic_bool shutdown;
+        // Static shutdown signal for the entire instance
+        static bool shutdown_;
     };
+
+    // The global config for overwatch
+    extern Config g_config;
 } // namespace overwatch::core

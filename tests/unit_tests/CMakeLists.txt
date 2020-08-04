@@ -11,5 +11,6 @@ target_include_directories(${CONTEXT} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_subdirectory(overwatch)
 
+target_include_directories(${CONTEXT} PRIVATE ${EXTERNAL_INCLUDE_DIR})
 target_link_libraries(${CONTEXT} PRIVATE overwatch)
 install(TARGETS ${CONTEXT} DESTINATION ${OUTPUT_BIN_DIR})

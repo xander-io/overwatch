@@ -113,7 +113,7 @@ namespace common::logging
         void parse_formatted_log_string_(std::string const &formatted_logging_str, std::filesystem::path *file_path, LogSeverity *log_severity)
         {
             // This should never happen unless the developer makes a mistake
-            if (file_path == nullptr || log_severity == nullptr)
+            if (!file_path || !log_severity)
             {
                 throw std::invalid_argument{"At least one logging parameter must not be null"};
             }
@@ -121,7 +121,7 @@ namespace common::logging
             size_t delimiter_index = formatted_logging_str.find(":");
             if (delimiter_index == std::string::npos)
             {
-                throw std::invalid_argument{"Logging string formatted incorrectly"};
+                throw std::invalid_argument{"Logging string formatted incorrectly - Expected '<optional_logging_path>:<logging_severity>'"};
             }
             // First index is the logging file, second index is the severity
             if (delimiter_index > 0)
@@ -174,7 +174,8 @@ namespace common::logging
     }
 
 #ifndef NDEBUG
-    LogEntry::LogEntry(LogSeverity const &log_severity, long const &line, std::string const &func)
+    LogEntry::LogEntry(LogSeverity const &log_severity,
+                       long const &line, std::string const &func)
         : LogEntry(log_severity)
     {
         set_logging_thread_attribute_("Line", line);

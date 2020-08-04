@@ -16,21 +16,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#ifdef _WIN32
+#include "windows.hpp"
+#else
+#include <unistd.h>
+#endif
 #include <signal.h>
 #include <iostream>
 #include <memory>
+#include <string>
 
-#ifdef _WIN32
-#include "windows.hpp"
-#endif
 #include "config.hpp"
 #include "logging.hpp"
-#include "arguments_parser.hpp"
+#include "argument_parser.hpp"
 
 namespace
 {
-    std::unique_ptr<overwatch::core::Config> config_{nullptr};
-
     /**
      * Clean up the overwatch instance once a signal is fired
      * 
@@ -38,11 +39,8 @@ namespace
      */
     void cleanup_(int) noexcept
     {
-        if (config_)
-        {
-            LOG_DEBUG << "Received external shutdown signal";
-            config_->shutdown = true;
-        }
+        LOG_DEBUG << "Received external shutdown signal";
+        overwatch::core::g_config.signal_shutdown();
     }
 
     /**
@@ -51,17 +49,11 @@ namespace
     void sleep_() noexcept
     {
         LOG_INFO << "Waiting for external shutdown signal...";
-        while (!config_->shutdown)
+        while (!overwatch::core::g_config.is_shutdown())
         {
             LOG_DEBUG << "Shutdown signal is not set";
             sleep(1);
         }
-    }
-
-    overwatch::core::args_map_t const parse_args_(int const &argc, char const *const *const &argv)
-    {
-        overwatch::core::ArgumentsParser arg_parser;
-        return arg_parser.parse(argc, argv);
     }
 
     /**
@@ -69,7 +61,7 @@ namespace
      */
     void init_signals_() noexcept
     {
-        LOG_DEBUG << "Adding cleanup signals";
+        LOG_DEBUG << "Initializing cleanup signals";
         signal(SIGINT, cleanup_);
         signal(SIGTERM, cleanup_);
     }
@@ -81,18 +73,29 @@ namespace
      * @param[in] argv Argument values
      * @return If the exe succeeds or fails
      */
-    int overwatch_(int const &argc, char const *const *const &argv) noexcept
+    int overwatch_(int const argc, char const *const *const argv) noexcept
     {
         int exit_code = EXIT_SUCCESS;
+        // Parse the args and convert to a config
+        overwatch::core::ArgumentParser arg_parser;
         try
         {
-            // Parse the args and convert to a config
-            overwatch::core::args_map_t const args = parse_args_(argc, argv);
-            config_ = std::unique_ptr<overwatch::core::Config>{new overwatch::core::Config{args}};
-            common::logging::set_logger(config_->logging);
-            LOG_INFO << config_->to_string();
+            arg_parser.parse_args(argc, argv);
+            // Generate the overwatch configuration
+            overwatch::core::g_config =
+                overwatch::core::Config(
+                    arg_parser.get<std::string>(ARG_TARGET),
+                    arg_parser.get<std::string>(ARG_INTERFACE),
+                    arg_parser.get<std::string>(ARG_LOGGING),
+                    arg_parser.present<std::string>(ARG_ARPSPOOF_HOST));
+            // Validate the newly generate config values
+            overwatch::core::g_config.validate();
+            // Set the logger to log at the specified output
+            common::logging::set_logger(overwatch::core::g_config.get_logging());
+            LOG_INFO << overwatch::core::g_config.to_string();
             LOG_INFO << "Running overwatch...";
             init_signals_();
+            // @TODO: Main execution
             sleep_();
             //wait_on_threads_();
         }
@@ -102,10 +105,13 @@ namespace
             {
                 LOG_ERROR << e.what() << std::endl;
             }
-            // The logger will not be initialized if argparse fails
+            // Argparse failure
             else
             {
-                std::cout << e.what() << std::endl;
+                // Print error and usage
+                std::cout << e.what() << std::endl
+                          << std::endl
+                          << arg_parser.get_usage() << std::endl;
             }
             exit_code = EXIT_FAILURE;
         }
