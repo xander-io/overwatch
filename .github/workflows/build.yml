@@ -13,8 +13,6 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
-    - name: Install Boost Dependency
-      run: brew install boost
     - name: Configure
       env:
         CC: gcc-8
