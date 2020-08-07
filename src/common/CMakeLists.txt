@@ -8,4 +8,3 @@ target_sources(${CONTEXT}
         logging.cpp
         utils.cpp)
 target_include_directories(${CONTEXT} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(${CONTEXT} PRIVATE Boost::log Boost::log_setup)

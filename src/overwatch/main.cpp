@@ -23,7 +23,6 @@
 #endif
 #include <signal.h>
 #include <iostream>
-#include <memory>
 #include <string>
 
 #include "config.hpp"

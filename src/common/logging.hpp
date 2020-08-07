@@ -60,21 +60,22 @@ namespace common::logging
     class LogEntry
     {
     public:
+#ifdef NDEBUG
         /**
          * Constructor used to log an entry.
          * 
-         * @param[in] log_severity The severity level that the log entry is associated with.
+         * @param[in] entry_severity The severity level that the log entry is associated with.
          */
-        LogEntry(LogSeverity const &log_severity);
-#ifndef NDEBUG
+        LogEntry(LogSeverity const &entry_severity);
+#else
         /**
          * Additional constructor only in debug mode used to log an entry with the line and function.
          * 
-         * @param log_severity The severity level that the log entry is associated with.
+         * @param[in] entry_severity The severity level that the log entry is associated with.
          * @param[in] line The current line where the log was written from.
          * @param[in] func The function that the log is contained in.
          */
-        LogEntry(LogSeverity const &log_severity, long const &line, std::string const &func);
+        LogEntry(LogSeverity const &entry_severity, long const &line, std::string const &function);
 #endif
         /// Destructor for log entry - Used to determine when the log entry is complete
         ~LogEntry();
@@ -140,9 +141,15 @@ namespace common::logging
         void log_entry_();
 
         // Internal state of the logging severity.
-        LogSeverity const log_severity_;
+        LogSeverity const entry_severity_;
         // Internal state of ongoing entry.
         std::string entry_;
+#ifndef NDEBUG
+        // Line number of function call (used only in debug)
+        long const line_;
+        // Function name (used only in debug)
+        std::string const function_;
+#endif
     };
 
     /**
