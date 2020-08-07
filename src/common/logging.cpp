@@ -169,7 +169,10 @@ namespace common::logging
             std::stringstream fmt;
             time_t const sys_time = std::chrono::system_clock::to_time_t(
                 std::chrono::system_clock::now());
-            fmt << "[" << strtok(std::ctime(&sys_time), "\n");
+            char *time = std::ctime(&sys_time);
+            // Remove the \n
+            time[strlen(time) - 1] = '\0';
+            fmt << "[" << time;
 #ifdef NDEBUG
             // "[%TimeStamp%] %LogSeverity% - %Message%"
             fmt << "] ";
