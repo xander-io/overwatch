@@ -24,6 +24,7 @@
 #include <chrono>
 #include <ctime>
 #include <iostream>
+#include <string.h>
 
 #include "logging.hpp"
 
