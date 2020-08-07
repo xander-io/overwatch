@@ -111,7 +111,7 @@ namespace overwatch::core
         size_t const max_value_size =
             std::max({target_ip_.length(), (arpspoof_host_ip_ ? (*arpspoof_host_ip_).length() : 0),
                       iface_.length(), logging_.length()});
-        size_t const total_banner_symbols = std::max(MIN_BANNER_SYMBOLS, max_value_size);
+        size_t const total_banner_symbols = std::max(static_cast<size_t const>(MIN_BANNER_SYMBOLS), max_value_size);
 
         // Display banner with current configuration for overwatch
         std::string const padding{10, ' '};
