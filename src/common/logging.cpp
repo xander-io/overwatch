@@ -16,15 +16,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <time.h>
+#include <string.h>
 #include <atomic>
 #include <fstream>
 #include <stdexcept>
 #include <memory>
 #include <sstream>
 #include <chrono>
-#include <ctime>
 #include <iostream>
-#include <string.h>
+#include <algorithm>
+
 
 #include "logging.hpp"
 
@@ -163,6 +165,7 @@ namespace common::logging
         }
     }
 
+    #define TIME_SIZE 26
     void LogEntry::log_entry_()
     {
         if (entry_severity_ >= internals_.max_severity)
@@ -170,7 +173,8 @@ namespace common::logging
             std::stringstream fmt;
             time_t const sys_time = std::chrono::system_clock::to_time_t(
                 std::chrono::system_clock::now());
-            char *time = std::ctime(&sys_time);
+            char time[TIME_SIZE];
+            ctime_s(time, sizeof(time), &sys_time);
             // Remove the \n
             time[strlen(time) - 1] = '\0';
             fmt << "[" << time;
