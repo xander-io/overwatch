@@ -9,7 +9,7 @@
 namespace overwatch::core
 {
     ArgumentParser::ArgumentParser()
-        : internal_parser_{"overwatch", "0.0.1"}
+        : internal_parser_{ "overwatch", "0.0.1" }
     {
         init_parser_args_();
     }
@@ -25,7 +25,7 @@ namespace overwatch::core
             .help("IP of host to intercept packets for (HOST is usually the local gateway)");
         internal_parser_.add_argument(ARG_INTERFACE_ABRV, ARG_INTERFACE)
             .help("The interface to watch for network traffic")
-            .default_value(static_cast<std::string>("eth0"));
+            .default_value(std::string{ "eth0" });
         internal_parser_.add_argument(ARG_LOGGING_ABRV, ARG_LOGGING)
             .help("Logging (fmt: '<optional_logging_path>:<logging_severity>')")
             .default_value(static_cast<std::string>(":info"));
